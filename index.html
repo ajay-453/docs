@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="An in-depth field guide to CI/CD, the green/red build signal, and Jenkins pipelines — grounded in real GitHub Actions workflows.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚦</text></svg>">
+<title>Green Means Go</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --bg:#e9edf1; --surface:#ffffff; --surface-2:#f4f7fa; --raise:#ffffff;
+  --ink:#121821; --ink-soft:#48586b; --ink-faint:#71829a;
+  --line:rgba(20,34,54,.13); --line-strong:rgba(20,34,54,.24);
+  --accent:#2f5fd0; --accent-soft:rgba(47,95,208,.10);
+  --pass:#128a4b; --pass-soft:rgba(18,138,75,.12);
+  --warn:#b5790f; --warn-soft:rgba(181,121,15,.14);
+  --fail:#cb3a3a; --fail-soft:rgba(203,58,58,.12);
+  --pend:#6b7787; --pend-soft:rgba(107,119,135,.14);
+  --term-bg:#0e1626; --term-ink:#c9d6ea; --term-line:rgba(255,255,255,.09);
+  --shadow:0 1px 2px rgba(16,28,48,.06), 0 8px 30px rgba(16,28,48,.07);
+  --maxw:1080px; --read:66ch;
+}
+:root:not([data-theme="light"]){ }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b0f16; --surface:#141a22; --surface-2:#1a212b; --raise:#1d2530;
+    --ink:#e7edf4; --ink-soft:#a3b0c0; --ink-faint:#788697;
+    --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.18);
+    --accent:#6f9bff; --accent-soft:rgba(111,155,255,.14);
+    --pass:#3fb968; --pass-soft:rgba(63,185,104,.16);
+    --warn:#e0a53a; --warn-soft:rgba(224,165,58,.16);
+    --fail:#f16a63; --fail-soft:rgba(241,106,99,.16);
+    --pend:#8b97a7; --pend-soft:rgba(139,151,167,.16);
+    --term-bg:#080d15; --term-ink:#cbd8ec; --term-line:rgba(255,255,255,.08);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 34px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b0f16; --surface:#141a22; --surface-2:#1a212b; --raise:#1d2530;
+  --ink:#e7edf4; --ink-soft:#a3b0c0; --ink-faint:#788697;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.18);
+  --accent:#6f9bff; --accent-soft:rgba(111,155,255,.14);
+  --pass:#3fb968; --pass-soft:rgba(63,185,104,.16);
+  --warn:#e0a53a; --warn-soft:rgba(224,165,58,.16);
+  --fail:#f16a63; --fail-soft:rgba(241,106,99,.16);
+  --pend:#8b97a7; --pend-soft:rgba(139,151,167,.16);
+  --term-bg:#080d15; --term-ink:#cbd8ec; --term-line:rgba(255,255,255,.08);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 34px rgba(0,0,0,.45);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
+h1,h2,h3,.eyebrow{font-family:"Archivo","IBM Plex Sans",sans-serif}
+h2{font-size:clamp(1.5rem,3vw,2rem); font-weight:800; letter-spacing:-.02em; line-height:1.1; text-wrap:balance; margin:0 0 .5rem}
+h3{font-size:1.16rem; font-weight:700; letter-spacing:-.01em; margin:2rem 0 .4rem}
+p{margin:.7rem 0; max-width:var(--read); color:var(--ink)}
+.lead{color:var(--ink-soft)}
+a{color:var(--accent); text-decoration:none; border-bottom:1px solid var(--accent-soft)}
+a:hover{border-bottom-color:currentColor}
+strong{font-weight:600}
+code{font-family:"IBM Plex Mono",monospace; font-size:.86em; background:var(--surface-2);
+  border:1px solid var(--line); border-radius:5px; padding:.05em .4em}
+.eyebrow{text-transform:uppercase; letter-spacing:.16em; font-size:.72rem; font-weight:700;
+  color:var(--accent)}
+section{padding:60px 0; border-top:1px solid var(--line)}
+section:first-of-type{border-top:0}
+
+/* hero */
+.hero{padding:74px 0 56px}
+.hero .kicker{color:var(--ink-faint); text-transform:uppercase; letter-spacing:.18em; font-size:.72rem; font-weight:700}
+.hero h1{font-size:clamp(2.6rem,7vw,4.6rem); font-weight:800; letter-spacing:-.035em; line-height:.98;
+  margin:.5rem 0 .2rem; text-wrap:balance}
+.hero h1 .go{color:var(--pass)}
+.hero .sub{font-size:1.2rem; color:var(--ink-soft); max-width:60ch; margin-top:1rem}
+.hero .meta{margin-top:1.4rem; display:flex; gap:.5rem; flex-wrap:wrap}
+.tag{font-family:"IBM Plex Mono",monospace; font-size:.76rem; padding:.3em .7em; border-radius:99px;
+  border:1px solid var(--line-strong); color:var(--ink-soft); background:var(--surface)}
+
+/* signal lights */
+.lights{display:flex; gap:18px; flex-wrap:wrap; margin:30px 0 6px}
+.light{display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--line);
+  border-radius:12px; padding:14px 18px; box-shadow:var(--shadow); flex:1 1 200px}
+.dot{width:16px; height:16px; border-radius:50%; flex:none; position:relative}
+.dot.pass{background:var(--pass); box-shadow:0 0 0 4px var(--pass-soft)}
+.dot.fail{background:var(--fail); box-shadow:0 0 0 4px var(--fail-soft)}
+.dot.warn{background:var(--warn); box-shadow:0 0 0 4px var(--warn-soft)}
+.dot.pend{background:var(--pend); box-shadow:0 0 0 4px var(--pend-soft)}
+.light b{font-family:"Archivo"; font-size:.98rem; display:block}
+.light span{font-size:.82rem; color:var(--ink-soft); display:block; line-height:1.4}
+
+/* status pill */
+.pill{display:inline-flex; align-items:center; gap:.4em; font-family:"IBM Plex Mono",monospace;
+  font-size:.78rem; font-weight:500; padding:.2em .6em; border-radius:6px; white-space:nowrap}
+.pill.pass{color:var(--pass); background:var(--pass-soft)}
+.pill.fail{color:var(--fail); background:var(--fail-soft)}
+.pill.warn{color:var(--warn); background:var(--warn-soft)}
+.pill.pend{color:var(--pend); background:var(--pend-soft)}
+.pill .dt{width:8px; height:8px; border-radius:50%; background:currentColor}
+
+/* cards / grid */
+.grid{display:grid; gap:16px; margin:24px 0}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px;
+  box-shadow:var(--shadow)}
+.card h3{margin-top:0}
+.card p{font-size:.94rem; color:var(--ink-soft)}
+.card .num{font-family:"IBM Plex Mono",monospace; font-size:.8rem; color:var(--accent); font-weight:600}
+
+/* terminal / code block */
+.term{background:var(--term-bg); border-radius:12px; margin:22px 0; overflow:hidden;
+  border:1px solid var(--term-line); box-shadow:var(--shadow)}
+.term .bar{display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--term-line)}
+.term .bar i{width:11px; height:11px; border-radius:50%; display:block; background:#3a4560}
+.term .bar .name{margin-left:8px; font-family:"IBM Plex Mono",monospace; font-size:.76rem; color:#8595b4}
+.term pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:"IBM Plex Mono",monospace;
+  font-size:.82rem; line-height:1.7; color:var(--term-ink)}
+.term pre .c{color:#6b7ba0}         /* comment */
+.term pre .k{color:#7fb0ff}         /* key */
+.term pre .s{color:#8fd3a6}         /* string / value */
+.term pre .ok{color:#5fd08a}
+.term pre .no{color:#f0847e}
+.term pre .dim{color:#5a6c8f}
+
+/* annotated code: two columns */
+.annot{display:grid; grid-template-columns:1fr; gap:0; margin:22px 0; border:1px solid var(--line);
+  border-radius:14px; overflow:hidden; box-shadow:var(--shadow)}
+.annot .row{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); border-top:1px solid var(--line)}
+.annot .row:first-child{border-top:0}
+@media(max-width:820px){.annot .row{grid-template-columns:1fr}}
+.annot .code{background:var(--term-bg); color:var(--term-ink); font-family:"IBM Plex Mono",monospace;
+  font-size:.8rem; padding:14px 16px; line-height:1.6; overflow-x:auto; white-space:pre}
+.annot .why{padding:14px 18px; background:var(--surface); font-size:.9rem; color:var(--ink-soft)}
+.annot .why b{color:var(--ink); font-weight:600}
+
+/* pipeline diagram */
+.diagram{overflow-x:auto; margin:26px 0; padding:6px 2px}
+.flow{display:flex; align-items:stretch; gap:0; min-width:640px}
+.stage{flex:1; min-width:96px; background:var(--surface); border:1px solid var(--line);
+  border-radius:12px; padding:14px 12px; text-align:center; position:relative; box-shadow:var(--shadow)}
+.stage + .stage{margin-left:34px}
+.stage::before{content:"→"; position:absolute; left:-27px; top:50%; transform:translateY(-50%);
+  color:var(--ink-faint); font-size:1.1rem}
+.stage .ic{width:30px; height:30px; margin:0 auto 8px; border-radius:8px; display:grid; place-items:center;
+  background:var(--accent-soft); color:var(--accent); font-family:"IBM Plex Mono"; font-weight:600; font-size:.9rem}
+.stage .nm{font-family:"Archivo"; font-weight:700; font-size:.86rem; line-height:1.15}
+.stage .st{margin-top:6px; font-family:"IBM Plex Mono",monospace; font-size:.68rem; color:var(--ink-faint)}
+.stage.done .ic{background:var(--pass-soft); color:var(--pass)}
+.stage.done{border-color:color-mix(in srgb, var(--pass) 40%, var(--line))}
+.stage.failnode .ic{background:var(--fail-soft); color:var(--fail)}
+.stage.failnode{border-color:color-mix(in srgb, var(--fail) 45%, var(--line))}
+
+/* comparison table */
+.tablewrap{overflow-x:auto; margin:22px 0; border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow)}
+table{border-collapse:collapse; width:100%; min-width:560px; font-size:.9rem; background:var(--surface)}
+th,td{text-align:left; padding:13px 16px; border-bottom:1px solid var(--line); vertical-align:top}
+thead th{font-family:"Archivo"; font-weight:700; font-size:.82rem; background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600; color:var(--ink)}
+.tag-gha{color:var(--accent)} .tag-jen{color:var(--warn)}
+
+/* callout */
+.note{border-left:3px solid var(--accent); background:var(--accent-soft); border-radius:0 10px 10px 0;
+  padding:14px 18px; margin:22px 0; font-size:.92rem}
+.note.real{border-left-color:var(--pass); background:var(--pass-soft)}
+.note .lbl{font-family:"Archivo"; font-weight:700; font-size:.74rem; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--accent); display:block; margin-bottom:2px}
+.note.real .lbl{color:var(--pass)}
+
+/* glossary */
+.gloss{display:grid; grid-template-columns:1fr; gap:0; margin:20px 0; border:1px solid var(--line);
+  border-radius:14px; overflow:hidden}
+.gloss dt{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink); padding:14px 18px 2px}
+.gloss dd{margin:0; padding:0 18px 14px; color:var(--ink-soft); font-size:.92rem; border-bottom:1px solid var(--line)}
+.gloss dd:last-child{border-bottom:0}
+
+footer{padding:44px 0 70px; color:var(--ink-faint); font-size:.86rem; border-top:1px solid var(--line)}
+
+.stack{display:flex; flex-direction:column; gap:2px}
+.muted{color:var(--ink-faint)}
+ul.tick{list-style:none; padding:0; margin:.8rem 0; max-width:var(--read)}
+ul.tick li{padding-left:1.7em; position:relative; margin:.5rem 0; color:var(--ink-soft)}
+ul.tick li::before{content:"→"; position:absolute; left:0; color:var(--accent); font-weight:600}
+@media (prefers-reduced-motion:no-preference){
+  .stage{animation:pop .5s both} .stage:nth-child(1){animation-delay:.05s}
+  .stage:nth-child(2){animation-delay:.18s}.stage:nth-child(3){animation-delay:.31s}
+  .stage:nth-child(4){animation-delay:.44s}.stage:nth-child(5){animation-delay:.57s}
+  .stage:nth-child(6){animation-delay:.70s}
+  @keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="kicker">CI / CD · Build signals · Jenkins</div>
+  <h1>Green Means <span class="go">Go</span>.</h1>
+  <p class="sub lead">A field guide to what actually happens when you push code — why a run turns green or red, what continuous integration and delivery really mean, and how Jenkins does the same job a different way. Grounded in the two pipelines you already run.</p>
+  <div class="meta">
+    <span class="tag">github actions · vaanimesh</span>
+    <span class="tag">github actions · velocity-hub</span>
+    <span class="tag">jenkins · declarative</span>
+  </div>
+</header>
+
+<!-- ============================================================= -->
+<section>
+  <div class="eyebrow">The one-minute model</div>
+  <h2>A pipeline is a checklist a robot runs on every push</h2>
+  <p class="lead">Every time you <code>git push</code>, a service spins up a clean, throwaway computer, checks out your exact commit, and runs a fixed list of commands — install, test, maybe deploy. Each command either <strong>succeeds</strong> (exit code 0) or <strong>fails</strong> (any non-zero exit code). If every command succeeds, the run is <b>green</b>. If any one fails, the robot stops and the run is <b>red</b>. That green/red mark is stamped back onto your commit and pull request.</p>
+
+  <div class="lights">
+    <div class="light"><span class="dot pass"></span><div><b>Green — passed</b><span>Every step exited 0. The commit is verified against everything the pipeline checks. Safe to merge / ship.</span></div></div>
+    <div class="light"><span class="dot fail"></span><div><b>Red — failed</b><span>A step exited non-zero. The robot halted there. Something is broken — the log shows exactly which step and why.</span></div></div>
+    <div class="light"><span class="dot warn"></span><div><b>Yellow — running</b><span>The pipeline is still working through the steps. Not a verdict yet, just "in progress."</span></div></div>
+    <div class="light"><span class="dot pend"></span><div><b>Grey — skipped / neutral</b><span>The step didn't run (a condition wasn't met) or reported no opinion. Neither pass nor fail.</span></div></div>
+  </div>
+  <p class="muted" style="font-size:.86rem">That's the whole traffic light. Green isn't a subjective grade — it's literally "every command in the list returned success."</p>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="eyebrow">The vocabulary, decoded</div>
+  <h2>CI and CD are two different promises</h2>
+  <p class="lead">People say "CI/CD" as one word, but it's two ideas stacked — and there are actually three, because the second "D" splits.</p>
+
+  <div class="grid g3">
+    <div class="card">
+      <div class="num">CI</div>
+      <h3>Continuous Integration</h3>
+      <p><b>The promise:</b> everyone's changes are merged into the shared branch often, and <em>every</em> merge is automatically built and tested. Break something, and you know within minutes — not at a painful "integration" weeks later.</p>
+      <p style="margin-top:.6rem"><b>What it produces:</b> the green/red signal. Nothing ships; it just answers <em>"does this commit still work?"</em></p>
+    </div>
+    <div class="card">
+      <div class="num">CD¹</div>
+      <h3>Continuous Delivery</h3>
+      <p><b>The promise:</b> every green commit is <em>always in a releasable state</em> and can be deployed at the push of a button. A human still decides <em>when</em> to release.</p>
+      <p style="margin-top:.6rem"><b>What it produces:</b> a build artifact, ready to go, plus a manual "Deploy" step.</p>
+    </div>
+    <div class="card">
+      <div class="num">CD²</div>
+      <h3>Continuous Deployment</h3>
+      <p><b>The promise:</b> every green commit deploys itself to production automatically — no human gate. The pipeline <em>is</em> the release process.</p>
+      <p style="margin-top:.6rem"><b>What it produces:</b> code in production, minutes after merge, with no one pressing a button.</p>
+    </div>
+  </div>
+
+  <div class="note real">
+    <span class="lbl">In your own stack</span>
+    <strong>VaaniMesh does CI only.</strong> Its GitHub pipeline runs the tests on every push and reports green/red — but nothing auto-ships, because the app is a live server on your machine, not deployable to Vercel. <strong>MilkPost does Continuous Delivery</strong> — green commits are releasable, but the actual deploy is a manual <code>vercel deploy --prod</code> you run by hand. Neither does full Continuous <em>Deployment</em> — no green commit reaches production untouched. That's a deliberate, common choice: automate the verification, keep a human on the release trigger.
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="eyebrow">Anatomy of a run</div>
+  <h2>What the robot actually does, step by step</h2>
+  <p class="lead">This is your real VaaniMesh pipeline — the file at <code>.github/workflows/ci.yml</code>. Every push to <code>master</code> and every pull request runs it. Here is each step and why it's there.</p>
+
+  <div class="diagram">
+    <div class="flow">
+      <div class="stage done"><div class="ic">✓</div><div class="nm">Checkout</div><div class="st">clone commit</div></div>
+      <div class="stage done"><div class="ic">✓</div><div class="nm">Setup Python</div><div class="st">3.12 + cache</div></div>
+      <div class="stage done"><div class="ic">✓</div><div class="nm">Install deps</div><div class="st">pip + torch</div></div>
+      <div class="stage done"><div class="ic">✓</div><div class="nm">pytest</div><div class="st">103 tests</div></div>
+      <div class="stage done"><div class="ic">✓</div><div class="nm">Setup Node</div><div class="st">v22</div></div>
+      <div class="stage done"><div class="ic">✓</div><div class="nm">node --test</div><div class="st">19 tests</div></div>
+    </div>
+  </div>
+
+  <div class="annot">
+    <div class="row">
+      <div class="code">on:
+  push:
+    branches: [master]
+  pull_request:</div>
+      <div class="why"><b>The trigger.</b> Run this workflow on every push to <code>master</code> and on every pull request. This is why you see a check appear seconds after <code>git push</code>.</div>
+    </div>
+    <div class="row">
+      <div class="code">runs-on: ubuntu-latest</div>
+      <div class="why"><b>The runner.</b> GitHub hands you a fresh, clean Ubuntu virtual machine for this job. It has nothing of yours on it — which is exactly the point: a green run proves the code works from scratch, not just "on my laptop."</div>
+    </div>
+    <div class="row">
+      <div class="code">- uses: actions/checkout@v4</div>
+      <div class="why"><b>Get the code.</b> A reusable <em>action</em> (someone else's packaged step) that clones your repo at the exact commit being tested.</div>
+    </div>
+    <div class="row">
+      <div class="code">- uses: actions/setup-python@v5
+  with:
+    python-version: "3.12"
+    cache: pip</div>
+      <div class="why"><b>Prepare the toolchain.</b> Installs Python 3.12 and caches downloaded packages so the next run is faster. Pinning the version means CI tests the same Python your app runs.</div>
+    </div>
+    <div class="row">
+      <div class="code">- run: pip install -r requirements.txt</div>
+      <div class="why"><b>Install dependencies — a real gate.</b> This is the step that turned <span class="pill fail"><span class="dt"></span>red</span> the day your <code>pydantic</code> pin was stale: a clean install couldn't resolve it, <code>pip</code> exited non-zero, and the run stopped here. Your laptop's venv hid it; the clean runner caught it.</div>
+    </div>
+    <div class="row">
+      <div class="code">- run: python -m pytest -q</div>
+      <div class="why"><b>The Python suite.</b> Runs all 103 server + relay tests. If one assertion fails, <code>pytest</code> exits non-zero → the run goes red and stops. This is the heart of CI.</div>
+    </div>
+    <div class="row">
+      <div class="code">- uses: actions/setup-node@v4
+- run: node --test "tests/js/*.test.js"</div>
+      <div class="why"><b>The browser-module suite.</b> Installs Node 22 and runs your 19 zero-dependency JS tests (roster, bilingual voice, UI smoke). Both language stacks must pass for the whole run to be green.</div>
+    </div>
+  </div>
+
+  <p>The steps run <strong>top to bottom, and stop at the first failure.</strong> So a red run always points at exactly one step — the log ends where it broke. Reading CI is really just reading that one failing step's output.</p>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="eyebrow">Reading a red build</div>
+  <h2>The log is the whole story</h2>
+  <p class="lead">When a run goes red, the log for the failing step is a plain terminal transcript. Here's the real one from your <code>pydantic</code> incident and the fix — nothing mysterious, just an exit code and a reason.</p>
+
+  <div class="term">
+    <div class="bar"><i></i><i></i><i></i><span class="name">ci · install dependencies · ✗ failed</span></div>
+<pre><span class="dim">$ pip install -r requirements.txt</span>
+<span class="no">ERROR: Cannot install -r requirements.txt (line 1) and pydantic==2.10.4</span>
+<span class="no">because these package versions have conflicting dependencies.</span>
+  pipecat-ai 1.8.1 depends on pydantic&gt;=2.11
+<span class="no">##[error]Process completed with exit code 1.</span>
+<span class="c"># exit code 1  →  step fails  →  run is RED  →  stops here</span></pre>
+  </div>
+
+  <div class="term">
+    <div class="bar"><i></i><i></i><i></i><span class="name">ci · after the one-line fix · ✓ success</span></div>
+<pre><span class="dim">$ pip install -r requirements.txt</span>   <span class="c"># pydantic pin bumped to 2.13.5</span>
+<span class="ok">Successfully installed pydantic-2.13.5 …</span>
+<span class="dim">$ python -m pytest -q</span>
+<span class="ok">103 passed in 6.0s</span>
+<span class="dim">$ node --test "tests/js/*.test.js"</span>
+<span class="ok"># tests 19   # pass 19   # fail 0</span>
+<span class="ok">##[status] all steps exited 0  →  run is GREEN ✓</span></pre>
+  </div>
+
+  <div class="note">
+    <span class="lbl">Why this matters</span>
+    That failure wasn't noise — it was CI doing its <em>one job</em>. Your local environment was built up incrementally over weeks and happened to work; the clean-room install proved the recorded recipe (<code>requirements.txt</code>) was wrong. Every developer who clones the repo fresh gets the fixed recipe now. <strong>A red build is a bug caught before it reached anyone else.</strong>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="eyebrow">Gates, not just tests</div>
+  <h2>Your second pipeline guards more than code</h2>
+  <p class="lead">The <code>velocity-hub</code> pipeline shows that a CI step can enforce <em>any</em> rule you can express as "exit non-zero if wrong." Three of its gates aren't unit tests at all:</p>
+
+  <div class="grid g3">
+    <div class="card">
+      <div class="num">gate 01</div>
+      <h3>Test suite</h3>
+      <p><code>pytest -q</code> — the 24 Barnboard/MilkPost app tests. The usual correctness gate.</p>
+    </div>
+    <div class="card">
+      <div class="num">gate 02</div>
+      <h3>Model baseline</h3>
+      <p><code>train_models.py</code> exits non-zero if the forecast model stops beating the naive baseline. CI refuses to let the ML quietly get worse.</p>
+    </div>
+    <div class="card">
+      <div class="num">gate 03</div>
+      <h3>Registry drift</h3>
+      <p><code>check_registry.py</code> fails if a port isn't recorded. This is the gate that emailed you when the <code>6793</code> row was duplicated.</p>
+    </div>
+  </div>
+
+  <p>That registry-drift email you got wasn't a bug in CI — it was gate 03 doing exactly what it exists to do: it found a real inconsistency (two rows claiming port 6793), exited non-zero, turned the run red, and GitHub emailed you because a run on your default branch failed. You fixed the duplicate, the gate passed, the emails stopped. <strong>The red build was the feature.</strong></p>
+
+  <div class="note">
+    <span class="lbl">The mental shift</span>
+    A CI step isn't "run the tests." It's <em>"encode a rule as a command that fails loudly when violated."</em> Tests, linters, type-checkers, security scans, a spreadsheet-consistency check, a "did you update the changelog" check — anything that can exit non-zero can be a gate. Branch protection then makes the green check <em>required</em>: GitHub won't let a red PR merge at all.
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="eyebrow">Case study · your recent red streak</div>
+  <h2>Why you suddenly saw a lot of failures</h2>
+  <p class="lead">A burst of red runs looks alarming, but the count of failures almost never equals the count of <em>problems</em>. Yours is a textbook example: a long stretch of green, then a cluster of red, then green again. Reconstructed from the fix-commits (the run logs themselves were deleted when you cleared the failure emails), here's what actually happened.</p>
+
+  <div class="grid g3" style="margin-bottom:6px">
+    <div class="card"><div class="num" style="color:var(--fail)">~14</div><h3>red runs, one window</h3><p>A cluster on <code>velocity-hub</code> around Sep 15, plus one on <code>vaanimesh</code> — the runs you saw and later deleted.</p></div>
+    <div class="card"><div class="num" style="color:var(--warn)">2</div><h3>actual root causes</h3><p>Nearly all of it traces to two underlying issues, each re-failing on every push until fixed — not fourteen separate bugs.</p></div>
+    <div class="card"><div class="num" style="color:var(--pass)">1</div><h3>line changed, each</h3><p>Both were fixed by a tiny, surgical change: a version pin and a merged duplicate row.</p></div>
+  </div>
+
+  <h3>What actually broke</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Root cause</th><th>Type</th><th>Mechanism</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Stale <code>pydantic</code> pin</td>
+          <td><span class="pill warn"><span class="dt"></span>env drift</span></td>
+          <td><code>requirements.txt</code> pinned <code>2.10.4</code>, but <code>pipecat-ai</code> needs <code>&ge;2.11</code>. Your laptop's venv, built up over weeks, already had a newer one and hid the conflict. A clean-room <code>pip install</code> couldn't resolve it and exited non-zero.</td>
+          <td>Pin bumped to <code>2.13.5</code> (what the venv truly ran) + a torch CPU step. <span class="pill pass"><span class="dt"></span>green</span></td>
+        </tr>
+        <tr>
+          <td>Duplicate port row</td>
+          <td><span class="pill warn"><span class="dt"></span>consistency gate</span></td>
+          <td>Moving the VaaniMesh cockpit appended a second <code>6793</code> row instead of editing the old one. <code>check_registry.py</code> requires one row per port, exited non-zero, and GitHub emailed you on every failed push to the default branch.</td>
+          <td>The two rows merged into one; drift check green. Emails stopped. <span class="pill pass"><span class="dt"></span>green</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Why <em>one</em> problem shows up as <em>many</em> red runs</h3>
+  <p>Three multipliers turned two issues into a wall of red — and understanding them is the whole lesson:</p>
+  <ul class="tick">
+    <li><b>A persistent failure re-fails on every push.</b> CI re-runs the full pipeline on each commit. A broken pin or a bad registry row stays broken until you fix it — so every push in between produces its own red run. Ten commits over a broken gate = ten red runs, one bug.</li>
+    <li><b>A backlog released all at once.</b> The MilkPost commits sat unpushed for ~5 days, then landed in a burst. Each one triggered its own run, so a week's worth of CI fired in a short window — concentrating the failures into a visible cluster instead of spreading them out.</li>
+    <li><b>Default-branch failures email you.</b> GitHub notifies on failed runs on your main branch. A streak of red on <code>master</code>/<code>main</code> becomes a streak of emails — which is what made it feel like "a lot."</li>
+  </ul>
+
+  <div class="note real">
+    <span class="lbl">The reassuring read</span>
+    Every one of those red runs was CI working correctly. The pydantic red proved your dependency recipe was wrong before anyone else cloned it; the registry reds caught a real bookkeeping inconsistency and paged you until it was fixed. <strong>Zero of them were false alarms.</strong> The system was loud because it had genuine things to say — and both were closed with a one-line change.
+  </div>
+
+  <h3>How to keep the next streak from happening</h3>
+  <div class="grid g2">
+    <div class="card"><h3>Push small, push often</h3><p>The 5-day backlog concentrated the pain. Pushing each change as you finish it means CI verifies one thing at a time — and a failure points at exactly what you just did, not a week of mixed work.</p></div>
+    <div class="card"><h3>Run the gate locally first</h3><p>Both failures were reproducible in seconds before pushing: <code>pip install -r requirements.txt</code> in a fresh venv, and <code>python tools/check_registry.py</code>. Running the same command CI runs, locally, catches it before the email does.</p></div>
+    <div class="card"><h3>Pin to what actually runs</h3><p>The env-drift class disappears if <code>requirements.txt</code> is generated from the working environment (<code>pip freeze</code>) rather than hand-edited — then the recipe and reality can't diverge.</p></div>
+    <div class="card"><h3>Deleting runs clears noise, not cause</h3><p>Removing the failed runs stopped the email clutter — reasonable housekeeping. But the run count was never the problem; the <em>pattern</em> was. Fix the underlying gate and the green returns on its own.</p></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="eyebrow">The other way to do it</div>
+  <h2>Jenkins: the same job, self-hosted</h2>
+  <p class="lead">GitHub Actions is <em>hosted</em> — GitHub owns the runners, you just write YAML. <strong>Jenkins</strong> is the older, heavier, more powerful sibling: an automation <em>server you run yourself</em>. Same core idea — a pipeline of stages that go green or red — but you own the machine, the plugins, and the upkeep.</p>
+
+  <h3>The pieces</h3>
+  <ul class="tick">
+    <li><b>Controller (the old "master").</b> The Jenkins server itself: it holds the config, schedules work, and shows the dashboard. You install and maintain it (a VM, a container, a laptop).</li>
+    <li><b>Agents (the old "nodes"/"slaves").</b> Worker machines the controller farms builds out to. GitHub's <code>ubuntu-latest</code> runner is the equivalent — except you provision agents yourself.</li>
+    <li><b>The <code>Jenkinsfile</code>.</b> A pipeline-as-code file in your repo, written in a Groovy-based DSL. It's Jenkins' answer to <code>ci.yml</code> — same purpose, different language.</li>
+    <li><b>Plugins.</b> Jenkins does almost nothing out of the box; its power (and its maintenance burden) is ~1,800 plugins — Git, Docker, Slack, credentials, the Blue Ocean UI, etc.</li>
+    <li><b>Triggers.</b> A GitHub <em>webhook</em> pings the Jenkins server on each push, or Jenkins polls the repo on a schedule.</li>
+  </ul>
+
+  <h3>A Jenkinsfile that mirrors your VaaniMesh CI</h3>
+  <p>The same pipeline you already run — but expressed the Jenkins way. Note the shape: <code>pipeline → agent → stages → stage → steps</code>, with a <code>post</code> block for the green/red aftermath.</p>
+
+  <div class="term">
+    <div class="bar"><i></i><i></i><i></i><span class="name">Jenkinsfile · declarative pipeline</span></div>
+<pre><span class="k">pipeline</span> {
+  <span class="k">agent</span> { <span class="s">docker</span> { <span class="s">image</span> <span class="s">'python:3.12'</span> } }   <span class="c">// where it runs</span>
+
+  <span class="k">triggers</span> { <span class="s">githubPush</span>() }              <span class="c">// webhook on push</span>
+
+  <span class="k">stages</span> {
+    <span class="k">stage</span>(<span class="s">'Install'</span>) {
+      <span class="k">steps</span> { sh <span class="s">'pip install -r requirements.txt'</span> }
+    }
+    <span class="k">stage</span>(<span class="s">'Python tests'</span>) {
+      <span class="k">steps</span> { sh <span class="s">'python -m pytest -q'</span> }   <span class="c">// non-zero → red</span>
+    }
+    <span class="k">stage</span>(<span class="s">'JS tests'</span>) {
+      <span class="k">steps</span> { sh <span class="s">'node --test "tests/js/*.test.js"'</span> }
+    }
+  }
+
+  <span class="k">post</span> {
+    <span class="ok">success</span> { echo <span class="s">'GREEN ✓ — all stages passed'</span> }
+    <span class="no">failure</span> { mail to: <span class="s">'you@example.com'</span>,
+               subject: <span class="s">'Build RED'</span> }   <span class="c">// like GitHub's email</span>
+  }
+}</pre>
+  </div>
+  <p class="muted" style="font-size:.86rem">Each <code>stage</code> is a labelled box in the dashboard; a <code>sh</code> command that exits non-zero fails its stage and reddens the run — identical semantics to <code>ci.yml</code>, just written in Groovy instead of YAML. The <code>post { failure { … } }</code> block is where you wire up the "build broke" notifications yourself.</p>
+
+  <h3>The stage view — Jenkins' green/red board</h3>
+  <p>Jenkins (especially its "Blue Ocean" UI) draws each run as a row of stage boxes. This is the same information as a GitHub Actions run, laid out horizontally:</p>
+  <div class="diagram">
+    <div class="flow">
+      <div class="stage done"><div class="ic">✓</div><div class="nm">Checkout</div><div class="st">2s</div></div>
+      <div class="stage done"><div class="ic">✓</div><div class="nm">Install</div><div class="st">41s</div></div>
+      <div class="stage done"><div class="ic">✓</div><div class="nm">Python tests</div><div class="st">6s</div></div>
+      <div class="stage failnode"><div class="ic">✕</div><div class="nm">JS tests</div><div class="st">failed</div></div>
+      <div class="stage"><div class="ic" style="background:var(--pend-soft);color:var(--pend)">–</div><div class="nm">Deploy</div><div class="st">skipped</div></div>
+    </div>
+  </div>
+  <p class="muted" style="font-size:.86rem">A failed stage colours red and halts the ones after it — here "Deploy" never runs because "JS tests" broke. Reading Jenkins is the same skill as reading Actions: find the red box, open its log, read the last command.</p>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="eyebrow">Side by side</div>
+  <h2>GitHub Actions vs Jenkins</h2>
+  <p class="lead">They solve the same problem. The trade is <em>convenience vs control</em>.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Dimension</th><th class="tag-gha">GitHub Actions (your setup)</th><th class="tag-jen">Jenkins</th></tr></thead>
+      <tbody>
+        <tr><td>Who runs the server</td><td>GitHub does. Zero infrastructure for you.</td><td>You do. Install, patch, back up, secure the controller.</td></tr>
+        <tr><td>Pipeline language</td><td>YAML (<code>.github/workflows/*.yml</code>)</td><td>Groovy DSL (<code>Jenkinsfile</code>)</td></tr>
+        <tr><td>Runners / agents</td><td>Hosted VMs on demand (<code>ubuntu-latest</code>); self-hosted optional</td><td>Agents you provision and connect yourself</td></tr>
+        <tr><td>Extending it</td><td>Marketplace "actions" (<code>uses:</code>)</td><td>~1,800 plugins you install and version</td></tr>
+        <tr><td>Cost model</td><td>Free minutes for public/small repos; pay for more</td><td>Free software; you pay for the machines it runs on</td></tr>
+        <tr><td>Best when</td><td>Code already on GitHub; you want it working today</td><td>Complex/legacy/on-prem needs, tight control, air-gapped networks</td></tr>
+        <tr><td>The green/red signal</td><td>Checks on the commit &amp; PR; emails on failure</td><td>Stage view / Blue Ocean; you wire up notifications</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">
+    <span class="lbl">Which should you use?</span>
+    For VaaniMesh and MilkPost — small repos already on GitHub — <strong>GitHub Actions is the right call</strong>, and it's what you have. Jenkins earns its keep when you outgrow hosted runners: heavy on-prem builds, strict network isolation, or orchestration too gnarly for YAML. Same concepts transfer directly; you'd mostly be trading a config file's syntax and taking on a server to babysit.
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="eyebrow">Keep this handy</div>
+  <h2>Glossary</h2>
+  <dl class="gloss">
+    <dt>Pipeline / Workflow</dt><dd>The whole automated recipe that runs on an event — the list of stages from checkout to (maybe) deploy.</dd>
+    <dt>Job</dt><dd>A pipeline runs one or more jobs; each job gets its own fresh runner. Your VaaniMesh workflow has one job, <code>tests</code>.</dd>
+    <dt>Step</dt><dd>A single command or action inside a job. Runs in order; the first non-zero exit stops the job.</dd>
+    <dt>Stage (Jenkins)</dt><dd>Jenkins' grouping of steps into a labelled, coloured box in the dashboard — "Build", "Test", "Deploy".</dd>
+    <dt>Runner / Agent</dt><dd>The machine that executes the work. Hosted (GitHub) or self-provisioned (Jenkins).</dd>
+    <dt>Action / Plugin</dt><dd>A reusable, packaged step — <code>actions/checkout</code> on GitHub; a plugin on Jenkins.</dd>
+    <dt>Exit code</dt><dd>A command's success signal. <code>0</code> = success (green). Anything else = failure (red). The entire traffic light rests on this.</dd>
+    <dt>Status check</dt><dd>The green/red mark a pipeline reports back onto a commit or pull request.</dd>
+    <dt>Branch protection</dt><dd>A rule that makes a green check <em>required</em> — a red PR can't be merged.</dd>
+    <dt>Trigger / Webhook</dt><dd>What starts a run: a push, a PR, a schedule, or a webhook ping from GitHub to a Jenkins server.</dd>
+    <dt>Artifact</dt><dd>A file a pipeline produces and keeps — a build output, a test report, a packaged release.</dd>
+    <dt>Gate</dt><dd>Any step whose job is to fail the build when a rule is violated — tests, a model baseline, a registry check.</dd>
+  </dl>
+</section>
+
+<footer class="wrap" style="border:0; padding-top:24px">
+  Green Means Go — a field guide grounded in the <code>vaanimesh</code> and <code>velocity-hub</code> CI pipelines.
+  The whole system reduces to one habit: <strong>push small, read the signal, fix red before you move on.</strong>
+</footer>
+
+</div>
+</body>
+</html>
