@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How It Works</title>
+<meta name="description" content="A plain-language handbook with code snippets for two systems: MilkPost (dairy data platform) and VaaniMesh (live voice-translation mesh).">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📘</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#e9edf1; --surface:#ffffff; --surface-2:#f4f7fa; --raise:#ffffff;
+  --ink:#121821; --ink-soft:#48586b; --ink-faint:#71829a;
+  --line:rgba(20,34,54,.13); --line-strong:rgba(20,34,54,.24);
+  --accent:#2f5fd0; --accent-soft:rgba(47,95,208,.10);
+  --pass:#128a4b; --pass-soft:rgba(18,138,75,.12);
+  --warn:#b5790f; --warn-soft:rgba(181,121,15,.14);
+  --fail:#cb3a3a; --fail-soft:rgba(203,58,58,.12);
+  --pend:#6b7787; --pend-soft:rgba(107,119,135,.14);
+  --term-bg:#0e1626; --term-ink:#c9d6ea; --term-line:rgba(255,255,255,.09);
+  --shadow:0 1px 2px rgba(16,28,48,.06), 0 8px 30px rgba(16,28,48,.07);
+  --maxw:1080px; --read:66ch;
+}
+:root:not([data-theme="light"]){ }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b0f16; --surface:#141a22; --surface-2:#1a212b; --raise:#1d2530;
+    --ink:#e7edf4; --ink-soft:#a3b0c0; --ink-faint:#788697;
+    --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.18);
+    --accent:#6f9bff; --accent-soft:rgba(111,155,255,.14);
+    --pass:#3fb968; --pass-soft:rgba(63,185,104,.16);
+    --warn:#e0a53a; --warn-soft:rgba(224,165,58,.16);
+    --fail:#f16a63; --fail-soft:rgba(241,106,99,.16);
+    --pend:#8b97a7; --pend-soft:rgba(139,151,167,.16);
+    --term-bg:#080d15; --term-ink:#cbd8ec; --term-line:rgba(255,255,255,.08);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 34px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b0f16; --surface:#141a22; --surface-2:#1a212b; --raise:#1d2530;
+  --ink:#e7edf4; --ink-soft:#a3b0c0; --ink-faint:#788697;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.18);
+  --accent:#6f9bff; --accent-soft:rgba(111,155,255,.14);
+  --pass:#3fb968; --pass-soft:rgba(63,185,104,.16);
+  --warn:#e0a53a; --warn-soft:rgba(224,165,58,.16);
+  --fail:#f16a63; --fail-soft:rgba(241,106,99,.16);
+  --pend:#8b97a7; --pend-soft:rgba(139,151,167,.16);
+  --term-bg:#080d15; --term-ink:#cbd8ec; --term-line:rgba(255,255,255,.08);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 34px rgba(0,0,0,.45);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
+h1,h2,h3,.eyebrow{font-family:"Archivo","IBM Plex Sans",sans-serif}
+h2{font-size:clamp(1.5rem,3vw,2rem); font-weight:800; letter-spacing:-.02em; line-height:1.1; text-wrap:balance; margin:0 0 .5rem}
+h3{font-size:1.16rem; font-weight:700; letter-spacing:-.01em; margin:2rem 0 .4rem}
+p{margin:.7rem 0; max-width:var(--read); color:var(--ink)}
+.lead{color:var(--ink-soft)}
+a{color:var(--accent); text-decoration:none; border-bottom:1px solid var(--accent-soft)}
+a:hover{border-bottom-color:currentColor}
+strong{font-weight:600}
+code{font-family:"IBM Plex Mono",monospace; font-size:.86em; background:var(--surface-2);
+  border:1px solid var(--line); border-radius:5px; padding:.05em .4em}
+.eyebrow{text-transform:uppercase; letter-spacing:.16em; font-size:.72rem; font-weight:700;
+  color:var(--accent)}
+section{padding:60px 0; border-top:1px solid var(--line)}
+section:first-of-type{border-top:0}
+
+/* hero */
+.hero{padding:74px 0 56px}
+.hero .kicker{color:var(--ink-faint); text-transform:uppercase; letter-spacing:.18em; font-size:.72rem; font-weight:700}
+.hero h1{font-size:clamp(2.6rem,7vw,4.6rem); font-weight:800; letter-spacing:-.035em; line-height:.98;
+  margin:.5rem 0 .2rem; text-wrap:balance}
+.hero h1 .go{color:var(--pass)}
+.hero .sub{font-size:1.2rem; color:var(--ink-soft); max-width:60ch; margin-top:1rem}
+.hero .meta{margin-top:1.4rem; display:flex; gap:.5rem; flex-wrap:wrap}
+.tag{font-family:"IBM Plex Mono",monospace; font-size:.76rem; padding:.3em .7em; border-radius:99px;
+  border:1px solid var(--line-strong); color:var(--ink-soft); background:var(--surface)}
+
+/* signal lights */
+.lights{display:flex; gap:18px; flex-wrap:wrap; margin:30px 0 6px}
+.light{display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--line);
+  border-radius:12px; padding:14px 18px; box-shadow:var(--shadow); flex:1 1 200px}
+.dot{width:16px; height:16px; border-radius:50%; flex:none; position:relative}
+.dot.pass{background:var(--pass); box-shadow:0 0 0 4px var(--pass-soft)}
+.dot.fail{background:var(--fail); box-shadow:0 0 0 4px var(--fail-soft)}
+.dot.warn{background:var(--warn); box-shadow:0 0 0 4px var(--warn-soft)}
+.dot.pend{background:var(--pend); box-shadow:0 0 0 4px var(--pend-soft)}
+.light b{font-family:"Archivo"; font-size:.98rem; display:block}
+.light span{font-size:.82rem; color:var(--ink-soft); display:block; line-height:1.4}
+
+/* status pill */
+.pill{display:inline-flex; align-items:center; gap:.4em; font-family:"IBM Plex Mono",monospace;
+  font-size:.78rem; font-weight:500; padding:.2em .6em; border-radius:6px; white-space:nowrap}
+.pill.pass{color:var(--pass); background:var(--pass-soft)}
+.pill.fail{color:var(--fail); background:var(--fail-soft)}
+.pill.warn{color:var(--warn); background:var(--warn-soft)}
+.pill.pend{color:var(--pend); background:var(--pend-soft)}
+.pill .dt{width:8px; height:8px; border-radius:50%; background:currentColor}
+
+/* cards / grid */
+.grid{display:grid; gap:16px; margin:24px 0}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px;
+  box-shadow:var(--shadow)}
+.card h3{margin-top:0}
+.card p{font-size:.94rem; color:var(--ink-soft)}
+.card .num{font-family:"IBM Plex Mono",monospace; font-size:.8rem; color:var(--accent); font-weight:600}
+
+/* terminal / code block */
+.term{background:var(--term-bg); border-radius:12px; margin:22px 0; overflow:hidden;
+  border:1px solid var(--term-line); box-shadow:var(--shadow)}
+.term .bar{display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--term-line)}
+.term .bar i{width:11px; height:11px; border-radius:50%; display:block; background:#3a4560}
+.term .bar .name{margin-left:8px; font-family:"IBM Plex Mono",monospace; font-size:.76rem; color:#8595b4}
+.term pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:"IBM Plex Mono",monospace;
+  font-size:.82rem; line-height:1.7; color:var(--term-ink)}
+.term pre .c{color:#6b7ba0}         /* comment */
+.term pre .k{color:#7fb0ff}         /* key */
+.term pre .s{color:#8fd3a6}         /* string / value */
+.term pre .ok{color:#5fd08a}
+.term pre .no{color:#f0847e}
+.term pre .dim{color:#5a6c8f}
+
+/* annotated code: two columns */
+.annot{display:grid; grid-template-columns:1fr; gap:0; margin:22px 0; border:1px solid var(--line);
+  border-radius:14px; overflow:hidden; box-shadow:var(--shadow)}
+.annot .row{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); border-top:1px solid var(--line)}
+.annot .row:first-child{border-top:0}
+@media(max-width:820px){.annot .row{grid-template-columns:1fr}}
+.annot .code{background:var(--term-bg); color:var(--term-ink); font-family:"IBM Plex Mono",monospace;
+  font-size:.8rem; padding:14px 16px; line-height:1.6; overflow-x:auto; white-space:pre}
+.annot .why{padding:14px 18px; background:var(--surface); font-size:.9rem; color:var(--ink-soft)}
+.annot .why b{color:var(--ink); font-weight:600}
+
+/* pipeline diagram */
+.diagram{overflow-x:auto; margin:26px 0; padding:6px 2px}
+.flow{display:flex; align-items:stretch; gap:0; min-width:640px}
+.stage{flex:1; min-width:96px; background:var(--surface); border:1px solid var(--line);
+  border-radius:12px; padding:14px 12px; text-align:center; position:relative; box-shadow:var(--shadow)}
+.stage + .stage{margin-left:34px}
+.stage::before{content:"→"; position:absolute; left:-27px; top:50%; transform:translateY(-50%);
+  color:var(--ink-faint); font-size:1.1rem}
+.stage .ic{width:30px; height:30px; margin:0 auto 8px; border-radius:8px; display:grid; place-items:center;
+  background:var(--accent-soft); color:var(--accent); font-family:"IBM Plex Mono"; font-weight:600; font-size:.9rem}
+.stage .nm{font-family:"Archivo"; font-weight:700; font-size:.86rem; line-height:1.15}
+.stage .st{margin-top:6px; font-family:"IBM Plex Mono",monospace; font-size:.68rem; color:var(--ink-faint)}
+.stage.done .ic{background:var(--pass-soft); color:var(--pass)}
+.stage.done{border-color:color-mix(in srgb, var(--pass) 40%, var(--line))}
+.stage.failnode .ic{background:var(--fail-soft); color:var(--fail)}
+.stage.failnode{border-color:color-mix(in srgb, var(--fail) 45%, var(--line))}
+
+/* comparison table */
+.tablewrap{overflow-x:auto; margin:22px 0; border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow)}
+table{border-collapse:collapse; width:100%; min-width:560px; font-size:.9rem; background:var(--surface)}
+th,td{text-align:left; padding:13px 16px; border-bottom:1px solid var(--line); vertical-align:top}
+thead th{font-family:"Archivo"; font-weight:700; font-size:.82rem; background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600; color:var(--ink)}
+.tag-gha{color:var(--accent)} .tag-jen{color:var(--warn)}
+
+/* callout */
+.note{border-left:3px solid var(--accent); background:var(--accent-soft); border-radius:0 10px 10px 0;
+  padding:14px 18px; margin:22px 0; font-size:.92rem}
+.note.real{border-left-color:var(--pass); background:var(--pass-soft)}
+.note .lbl{font-family:"Archivo"; font-weight:700; font-size:.74rem; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--accent); display:block; margin-bottom:2px}
+.note.real .lbl{color:var(--pass)}
+
+/* glossary */
+.gloss{display:grid; grid-template-columns:1fr; gap:0; margin:20px 0; border:1px solid var(--line);
+  border-radius:14px; overflow:hidden}
+.gloss dt{font-family:"IBM Plex Mono",monospace; font-weight:600; color:var(--ink); padding:14px 18px 2px}
+.gloss dd{margin:0; padding:0 18px 14px; color:var(--ink-soft); font-size:.92rem; border-bottom:1px solid var(--line)}
+.gloss dd:last-child{border-bottom:0}
+
+footer{padding:44px 0 70px; color:var(--ink-faint); font-size:.86rem; border-top:1px solid var(--line)}
+
+.stack{display:flex; flex-direction:column; gap:2px}
+.muted{color:var(--ink-faint)}
+ul.tick{list-style:none; padding:0; margin:.8rem 0; max-width:var(--read)}
+ul.tick li{padding-left:1.7em; position:relative; margin:.5rem 0; color:var(--ink-soft)}
+ul.tick li::before{content:"→"; position:absolute; left:0; color:var(--accent); font-weight:600}
+@media (prefers-reduced-motion:no-preference){
+  .stage{animation:pop .5s both} .stage:nth-child(1){animation-delay:.05s}
+  .stage:nth-child(2){animation-delay:.18s}.stage:nth-child(3){animation-delay:.31s}
+  .stage:nth-child(4){animation-delay:.44s}.stage:nth-child(5){animation-delay:.57s}
+  .stage:nth-child(6){animation-delay:.70s}
+  @keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+</style>
+<style>
+.parthead{margin:70px 0 0; padding:34px 0 10px; border-top:2px solid var(--line)}
+.parthead .pl{font-family:"Archivo"; font-weight:800; letter-spacing:.14em; font-size:.8rem;
+  text-transform:uppercase; color:var(--accent)}
+.parthead h2{font-size:clamp(1.9rem,4vw,2.7rem); margin:.3rem 0 .4rem}
+.parthead .one{color:var(--ink-soft); font-size:1.1rem; max-width:60ch}
+.subnav{position:sticky; top:0; z-index:20; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--line); padding:10px 0; margin-bottom:8px}
+.subnav .wrap{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.subnav a{font-family:"IBM Plex Mono",monospace; font-size:.78rem; padding:.3em .8em; border-radius:99px;
+  border:1px solid var(--line); color:var(--ink-soft); background:var(--surface)}
+.subnav a:hover{border-color:var(--accent); color:var(--accent)}
+.subnav .sep{color:var(--ink-faint); font-size:.72rem; margin:0 2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="kicker">Systems handbook · plain-language reference</div>
+  <h1>How It <span class="go">Works</span>.</h1>
+  <p class="sub lead">Two systems, explained the understandable way — every concept in plain terms first, then the real code underneath. <strong>MilkPost</strong>, a dairy data platform, and <strong>VaaniMesh</strong>, a live voice-translation mesh.</p>
+  <div class="meta">
+    <span class="tag">🥛 MilkPost — dairy data platform</span>
+    <span class="tag">🕸️ VaaniMesh — translation mesh</span>
+  </div>
+</header>
+<nav class="subnav"><div class="wrap">
+  <a href="#milkpost">🥛 Part I · MilkPost</a>
+  <a href="#vaanimesh">🕸️ Part II · VaaniMesh</a>
+  <span class="sep">·</span>
+  <a href="index.html">↗ Green Means Go (CI/CD)</a>
+</div></nav>
+</div>
+<div class="wrap">
+<section>
+  <div class="eyebrow">Start here · how to learn from this</div>
+  <h2>Read the concept, then open the real file</h2>
+  <p class="lead">This handbook exists so you can <em>understand</em> the two systems, not just run them. Generated code you can't read is a liability; code you can reason about is yours. Every topic below is laid out the same way on purpose — <strong>the idea in plain words → why it's done that way → the real code</strong> — so you can build a mental model, not memorise syntax.</p>
+  <p>The doc alone won't teach you, though. Reading is not understanding — <strong>tracing</strong> is. Use it like this:</p>
+  <div class="grid g3">
+    <div class="card"><div class="num">1</div><h3>Open the real file beside it</h3><p>Each snippet is an excerpt. Open the actual source file (paths are mapped at the end), find the same lines, and read what surrounds them. The snippet is the doorway; the file is the room.</p></div>
+    <div class="card"><div class="num">2</div><h3>Change one line, run the test</h3><p>Break something on purpose — flip a flag, change a number — and watch which test goes red. Nothing teaches what a line does faster than seeing what fails without it.</p></div>
+    <div class="card"><div class="num">3</div><h3>Explain it back, out loud</h3><p>If you can say why the code is shaped this way — not what it does, <em>why</em> — you own it. If you stumble, that's the exact spot to re-read. Ask me to go deeper on any of them.</p></div>
+  </div>
+  <div class="note"><span class="lbl">An honest note</span>
+    Yes, this code was generated — but the goal was never "code appears." It was to solve two real problems well, in patterns worth learning: a governed data pipeline, a small honest forecasting model, a streaming translation mesh, stateless auth, graceful degradation. Those patterns transfer to whatever you build next. Treat this as a worked example to study, not a black box to trust.</div>
+</section>
+
+<div class="parthead" id="milkpost">
+  <div class="pl">Part I</div>
+  <h2>🥛 MilkPost — the dairy data platform</h2>
+  <p class="one">A dairy-farm app with a small data platform wrapped around it: herd records in, honest metrics and next-week milk forecasts out — on one machine, no cloud AI.</p>
+</div>
+
+<section>
+  <div class="eyebrow">The whole thing in one breath</div>
+  <h2>A farm app, plus a factory that turns its records into answers</h2>
+  <p class="lead">MilkPost (internal codename <em>Barnboard</em>) is two things bolted together. A <strong>web app</strong> a dairy farmer uses daily — log morning/evening milk, track cows on medication, record breedings and sales. And a <strong>data platform</strong>: an automated "factory" that cleans and models those records into trustworthy numbers and a per-cow milk forecast, then feeds them back to the dashboard.</p>
+  <p>It runs on one modest machine or a single serverless function, with <strong>no GPU and no cloud AI</strong> — the entire data-and-models layer is plain standard-library Python. That's deliberate: it runs identically on a farm PC, a cheap server, or a free tier, and the data never leaves the machine.</p>
+  <div class="grid g2">
+    <div class="card"><h3>The product</h3><p>The dairy app — herd, milk, health, breeding, sales, forecasts, and open data APIs. What a farmer signs into.</p></div>
+    <div class="card"><h3>The data platform</h3><p>The pipeline + metrics + models around it. Invisible to the farmer; it makes the dashboard's numbers correct and the forecasts real.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">The surfaces &amp; two key words</div>
+  <h2>Betadoc vs Phasedoc</h2>
+  <div class="grid g2">
+    <div class="card"><h3>Betadoc <span class="muted">(outward)</span></h3><p>A <b>public marketing-plus-docs site</b> with the real app gated behind a PIN — the storefront with a working demo inside.</p></div>
+    <div class="card"><h3>Phasedoc <span class="muted">(inward)</span></h3><p>A <b>private build-tracking cockpit</b> — a live checklist of what's built and actually tested, with a colour-coded architecture diagram. Keeps builders honest; never public.</p></div>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Surface</th><th>Where</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td>The app</td><td><code>127.0.0.1:8321</code></td><td>The dairy product itself.</td></tr>
+      <tr><td>The betadoc</td><td><code>:6790</code> HTTPS</td><td>Public face + PIN-gated proxy into the app.</td></tr>
+      <tr><td>Phasedoc cockpits</td><td><code>:6789 / :6791</code></td><td>Read-only build trackers, archived in place.</td></tr>
+      <tr><td>Hosted twin</td><td><code>milkpost.ajaykongala.online</code></td><td>Public Vercel copy: betadoc at <code>/</code>, PIN gate at <code>/demo</code>, app on a throwaway DB.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="eyebrow">The data · concept + code</div>
+  <h2>Five tables hold the whole farm</h2>
+  <p class="lead">Everything the farmer records lives in five plain SQLite tables — the "source of truth" the platform builds on. Here are the two central ones, verbatim from the schema:</p>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">barnboard.db — core schema</span></div><pre>CREATE TABLE cows (
+  id     INTEGER PRIMARY KEY,
+  tag    TEXT NOT NULL UNIQUE,        -- ear-tag: the farmer-facing id
+  name   TEXT, breed TEXT, dob TEXT,  -- dob = ISO date
+  status TEXT NOT NULL DEFAULT &#x27;milking&#x27;   -- milking|dry|sold|calf
+);
+
+CREATE TABLE milk_logs (
+  id       INTEGER PRIMARY KEY,
+  cow_id   INTEGER NOT NULL REFERENCES cows(id),
+  log_date TEXT NOT NULL,             -- ISO date
+  session  TEXT NOT NULL CHECK (session IN (&#x27;AM&#x27;,&#x27;PM&#x27;)),
+  litres   REAL NOT NULL,
+  UNIQUE (cow_id, log_date, session)  -- one row per cow-session-day (upsert)
+);
+-- plus: treatments, breedings, sales  (the other 3 farm tables)</pre></div>
+  <div class="note"><span class="lbl">Privacy line</span>
+    Login accounts, passwords, and sessions live in <em>separate</em> tables that are <strong>never exported and never enter the pipeline</strong>. Only the five farm tables are ever shared or modelled — personal data and farm data kept strictly apart by design.</div>
+</section>
+
+<section>
+  <div class="eyebrow">The pipeline · concept + code</div>
+  <h2>Medallion: raw → clean → useful</h2>
+  <p class="lead">"Medallion" is a naming convention for three quality tiers data passes through, like refining ore. Each layer has one job, and the app never reads a half-processed layer.</p>
+  <div class="diagram"><div class="flow">
+    <div class="stage"><div class="ic">1</div><div class="nm">Bronze</div><div class="st">raw, typed</div></div>
+    <div class="stage"><div class="ic">2</div><div class="nm">Silver</div><div class="st">cleaned</div></div>
+    <div class="stage"><div class="ic">3</div><div class="nm">Gold</div><div class="st">modelled facts</div></div>
+    <div class="stage done"><div class="ic">→</div><div class="nm">Semantic</div><div class="st">metrics</div></div>
+    <div class="stage done"><div class="ic">✓</div><div class="nm">Answers</div><div class="st">+ receipts</div></div>
+  </div></div>
+  <p>Four deterministic stages build it — <strong>architect</strong> (land+catalogue → bronze), <strong>engineer</strong> (clean → silver → gold), <strong>designer</strong> (metrics), <strong>analyst</strong> (answers). "Deterministic" = run it twice, get byte-identical output. The canonical re-run recipe:</p>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">re-run the pipeline (order matters)</span></div><pre>python3 tools/make_sources.py          # app DB  -&gt;  5 source CSVs
+run_pipeline.py --slug barnboard \
+     --sources data-team-sources/*.csv \
+     --stages architect,engineer          # -&gt;  bronze, silver, gold
+python3 tools/enrich_gold.py             # + agg_milk_cow_daily, breed benchmarks
+designer.py --slug barnboard --metrics-dir semantic-metrics   # build metrics
+analyst.py  --slug barnboard --ask &quot;avg daily yield per cow&quot;  # answer + receipt
+python3 tools/train_models.py            # retrain + backtest + versioned artifact</pre></div>
+  <div class="note warn"><span class="lbl">Re-run order trap</span>
+    Running the later stages alone silently rebuilds the earlier ones and wipes the enrichment. Always: full spine → <code>enrich_gold.py</code> → designer/analyst.</div>
+</section>
+
+<section>
+  <div class="eyebrow">The semantic layer · concept + code</div>
+  <h2>Numbers that carry their own receipt</h2>
+  <p class="lead">A <strong>semantic layer</strong> is one governed dictionary of what each business number <em>means</em> — defined once so it's computed the same way everywhere. Each metric is one JSON file; every answer ships a <strong>receipt</strong> (definition, version, owner, lineage, exact SQL). A number traces back to the raw logs.</p>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">semantic-metrics/price_per_litre.json  (v2 override)</span></div><pre>{ &quot;metric&quot;: &quot;price_per_litre&quot;, &quot;version&quot;: &quot;v2&quot;,
+  &quot;aggregation&quot;: &quot;ratio&quot;,
+  &quot;numerator&quot;:   &quot;litres_x_price&quot;,
+  &quot;denominator&quot;: &quot;litres&quot;,
+  &quot;rollups&quot;: { &quot;daily&quot;: &quot;gold.agg_sales_daily&quot; },
+  &quot;unit&quot;: &quot;INR/L&quot;, &quot;owner&quot;: &quot;data-designer&quot; }
+
+-- the guard recomputes ratios from parts, never sums a ratio:
+   sum(litres*price_per_litre) / nullif(sum(litres),0)   =&gt;  Rs 42.24   (correct)
+   sum(price_per_litre)                                  =&gt;  Rs 422.38  (the bug it caught)</pre></div>
+  <div class="note real"><span class="lbl">The rule</span>
+    <strong>Never sum or average an average.</strong> Additive things (totals, counts) may be added up; ratios/averages are recomputed from their parts at whatever level you ask. That single guard makes the classic corruption of farm statistics structurally impossible.</div>
+</section>
+
+<section>
+  <div class="eyebrow">The models · concept + code</div>
+  <h2>Forecasting next week's milk, simply</h2>
+  <p class="lead">The "AI" is small and explainable — no neural net, no GPU. Three models: a per-cow 7-day forecast (<b>damped Holt</b>: track level + recent trend, project forward while gently flattening the trend), an anomaly flag (&gt;20% below a cow's own forecast), and a month-end revenue projection.</p>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">yield_forecast — damped Holt (the whole model)</span></div><pre>fit per cow, over complete cow-days, in order:
+  level_0 = y_0 ;  trend_0 = 0
+  level_t = a*y_t        + (1-a)*(level_{t-1} + phi*trend_{t-1})
+  trend_t = b*(level_t-level_{t-1}) + (1-b)*phi*trend_{t-1}
+forecast h days ahead:
+  y_hat(h) = max(0, level + (phi^1 + phi^2 + ... + phi^h) * trend)
+hyperparameters (stored IN the artifact):  a=0.35  b=0.15  phi=0.92</pre></div>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">models/yield_forecast/v1/params.json  +  hot-swap</span></div><pre>{ &quot;model&quot;:&quot;yield_forecast&quot;, &quot;version&quot;:&quot;v1&quot;,
+  &quot;alpha&quot;:0.35, &quot;beta&quot;:0.15, &quot;damp&quot;:0.92,
+  &quot;lineage&quot;:[&quot;gold.agg_milk_cow_daily&quot;],
+  &quot;backtest&quot;:{&quot;mae_model&quot;:1.247, &quot;mae_naive&quot;:1.333},   # must beat naive or the trainer FAILS
+  &quot;cows&quot;:{ &quot;&lt;id&gt;&quot;:{&quot;level&quot;:..,&quot;trend&quot;:..,&quot;trained_through&quot;:&quot;..&quot;} } }
+
+# models/yield_forecast/LATEST names the live version.
+# The app reads LATEST per request -&gt; publishing a model = update that pointer.
+# No restart, no code change.  (verified: v1 -&gt; vtest -&gt; v1 hot-swap)</pre></div>
+  <div class="note"><span class="lbl">The data-hygiene rule that made it honest</span>
+    A cow-day with only the morning logged looks like a 50% collapse. The model <strong>excludes half-logged days</strong> — this halved the forecast error and removed the only false anomaly flag. Data cleaning beat a fancier model.</div>
+</section>
+
+<section>
+  <div class="eyebrow">Open contracts · concept + code</div>
+  <h2>Everything is reachable by machine, on purpose</h2>
+  <p class="lead">Stable JSON endpoints let a co-op, a vet's spreadsheet, or a successor system consume — or reclaim — everything. Machines send a <strong>feed token</strong> and get a clean JSON <code>401</code> if it's missing (never an HTML login page).</p>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">GET /api/v1/predict/yield/1?days=7</span></div><pre>{ &quot;schema_version&quot;:&quot;1.0&quot;, &quot;model&quot;:&quot;yield_forecast&quot;, &quot;model_version&quot;:&quot;v1&quot;,
+  &quot;cow_id&quot;:1, &quot;tag&quot;:&quot;101&quot;, &quot;breed&quot;:&quot;HF cross&quot;,
+  &quot;trained_through&quot;:&quot;2026-09-14&quot;,
+  &quot;forecast&quot;:[ {&quot;date&quot;:&quot;2026-09-15&quot;,&quot;litres&quot;:26.5},
+               {&quot;date&quot;:&quot;2026-09-16&quot;,&quot;litres&quot;:26.3}, ... ] }
+
+# GET /api/v1/schema          -&gt; the machine-readable table contract
+# GET /api/v1/{table}.json    -&gt; full rows (cows|milk_logs|treatments|breedings|sales)
+# GET /api/v1/metrics/{id}    -&gt; a governed metric value WITH its receipt</pre></div>
+</section>
+
+<section>
+  <div class="eyebrow">Auth &amp; sessions · concept + code</div>
+  <h2>Logging in — and the serverless trap that shaped it</h2>
+  <p class="lead">Passwords are stored as slow <strong>PBKDF2-HMAC-SHA256</strong> hashes (200k iterations) — even the DB can't reveal them. Sessions were the interesting part: on serverless, each request can hit a different throwaway instance with its own empty <code>/tmp</code> DB, so a table-stored session vanished between clicks and looped users back to login.</p>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">the two session modes</span></div><pre># password:  password_hash = &quot;&lt;salt_hex&gt;$&lt;dk_hex&gt;&quot;   PBKDF2-HMAC-SHA256, 200_000 iters
+
+# DB-backed (local, default):
+#   cookie = 32-byte random token  -&gt;  row in sessions(token, user_id, expires_at)
+#   revoke = delete the row (logout-everywhere works)
+
+# Stateless (Vercel, STATELESS_SESSIONS=1):   the cookie IS the session
+#   cookie = b64url( &quot;&lt;uid&gt;.&lt;exp&gt;.&lt;sig&gt;&quot; )
+#   sig    = HMAC_SHA256( SESSION_SECRET, &quot;&lt;uid&gt;.&lt;exp&gt;&quot; )[:32]
+#   any instance verifies it with no shared storage  -&gt;  no login loop</pre></div>
+  <div class="note real"><span class="lbl">The fix, as a decision</span>
+    Stateless signed cookies removed the login loop. The trade-off — you can't force-expire one before its 30-day life — is accepted for a disposable demo and written down, not left as a surprise. The public <strong>PIN gate</strong> works the same way: a valid PIN yields a short-lived signed cookie that proxies into the app; wrong PINs are rate-limited.</div>
+</section>
+
+<section>
+  <div class="eyebrow">Deployment · concept + code</div>
+  <h2>Two ways it runs, and why deploys are manual</h2>
+  <p class="lead">On this machine every piece runs under <strong>pm2</strong> (a process manager that restarts them on reboot, from committed configs). The hosted twin is one Vercel function whose <code>/tmp</code> DB reseeds itself on every cold start — a self-cleaning demo, never real records.</p>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">Vercel twin — env + the release ritual</span></div><pre># set before the app imports (api/index.py):
+DB_PATH=/tmp/barnboard.db        # ephemeral, self-reseeding
+BARNBOARD_SEED=1
+STATELESS_SESSIONS=1  +  SESSION_SECRET   # (Vercel encrypted env)
+DEMO_LOGIN=demo:farm12345
+
+# RELEASE = two steps.  There is NO git integration:
+git push                    # saves + runs CI  (does NOT deploy)
+vercel deploy --prod --yes  # actually publishes the change</pre></div>
+  <div class="note warn"><span class="lbl">Remember</span>
+    A <code>git push</code> deploys nothing on this project. Forgetting the <code>vercel deploy</code> is why a change can look "done" but not be live.</div>
+</section>
+
+<section>
+  <div class="eyebrow">Domain, DNS &amp; email · concept + code</div>
+  <h2>The address, and how demo emails send</h2>
+  <p class="lead">The public copy lives at <strong>milkpost.ajaykongala.online</strong>. A domain's <strong>DNS</strong> is its address book; a "wildcard" answers for any unlisted name. MilkPost rode the wildcard until email records under the same name made the bare subdomain "exist but empty" (DNS rule RFC 4592) and the wildcard stopped answering — the site went dark for minutes.</p>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">the zone records that matter (vercel dns add ...)</span></div><pre>milkpost                    CNAME  cname.vercel-dns-017.com.     # EXPLICIT record
+                                                                 # (never ride the wildcard)
+# email trust for Resend, so mail isn&#x27;t binned as spam:
+resend._domainkey.milkpost  TXT    p=MIGf...                     # DKIM  (signature)
+send.milkpost               TXT    v=spf1 include:amazonses.com ~all   # SPF (who may send)
+send.milkpost               MX 10  feedback-smtp.us-east-1.amazonses.com  # bounces</pre></div>
+  <div class="note"><span class="lbl">The standing rule</span>
+    <strong>Any hostname that serves something gets its own explicit DNS record</strong> — its first "sibling" record silently switches the wildcard off for it. DKIM signs the mail, SPF lists allowed senders; both are published in DNS so receivers trust <code>hello@milkpost.ajaykongala.online</code>.</div>
+</section>
+
+<div class="parthead" id="vaanimesh">
+  <div class="pl">Part II</div>
+  <h2>🕸️ VaaniMesh — the live translation mesh</h2>
+  <p class="one">Four people, four languages, one conversation. Each speaks their own language and hears everyone else in theirs — speech recognition → translation → speech, per utterance, a few seconds behind.</p>
+</div>
+
+<section>
+  <div class="eyebrow">The whole thing in one breath</div>
+  <h2>A room where everyone speaks their own language</h2>
+  <p class="lead">VaaniMesh is a real-time voice-translation <strong>mesh</strong> for multilingual rooms (Telugu, Bangla, Marathi, Hindi, English). A Telugu speaker talks; the Bangla listener hears Bangla, the Hindi listener hears Hindi — each with a spoken voice and a written caption. Every utterance runs a three-stage pipeline: <strong>ASR</strong> (speech → text) → <strong>MT</strong> (translate) → <strong>TTS</strong> (text → speech).</p>
+  <div class="grid g3">
+    <div class="card"><h3>Speaker consoles</h3><p>Browser pages that capture your mic and play back translations. Up to five participants.</p></div>
+    <div class="card"><h3>The relay</h3><p>An independent server that owns the whole AI pipeline and routes each listener their own version. Nothing about a conversation lives in the browser.</p></div>
+    <div class="card"><h3>Operator dashboard</h3><p>A live read-only view of speakers, mic levels, round-trip time, and pipeline latencies.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">The pipeline · concept + code</div>
+  <h2>Three paid stages, one pluggable provider</h2>
+  <p class="lead">Each utterance passes ASR → MT → TTS. All three run through <em>one</em> provider, chosen per-stage by environment variable — so swapping providers is config, not code. Today that's <strong>Sarvam</strong> (the OpenRouter key expired; see below).</p>
+  <div class="diagram"><div class="flow">
+    <div class="stage done"><div class="ic">🎙️</div><div class="nm">ASR</div><div class="st">speech→text</div></div>
+    <div class="stage done"><div class="ic">🌐</div><div class="nm">MT</div><div class="st">translate</div></div>
+    <div class="stage done"><div class="ic">🔊</div><div class="nm">TTS</div><div class="st">text→speech</div></div>
+    <div class="stage"><div class="ic">→</div><div class="nm">Route</div><div class="st">per listener</div></div>
+  </div></div>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">provider selection (relay env) — one key, three stages</span></div><pre># each stage picks a provider independently; all currently Sarvam:
+ASR_PROVIDER=sarvam
+MT_PROVIDER=sarvam
+TTS_PROVIDER=sarvam
+SARVAM_API_KEY=&lt;key in .env&gt;     # free-tier credits
+
+# server/providers/__init__.py resolves them:
+def get_asr(): return _resolve(&quot;asr&quot;, settings.asr_provider)
+def get_mt():  return _resolve(&quot;mt&quot;,  settings.mt_provider)
+def get_tts(): return _resolve(&quot;tts&quot;, settings.tts_provider)</pre></div>
+</section>
+
+<section>
+  <div class="eyebrow">Providers &amp; keys · now vs earlier</div>
+  <h2>The provider switch, in one table</h2>
+  <p class="lead">One API key drives all three stages, which makes it a single point of failure. When the OpenRouter key expired (HTTP 401), the whole product went down — so it was moved to Sarvam as a stopgap. Reverting is a config flip.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Stage</th><th>Earlier (OpenRouter)</th><th>Now (Sarvam)</th></tr></thead>
+    <tbody>
+      <tr><td>ASR (speech→text)</td><td><code>openai/whisper-large-v3</code></td><td><code>saaras:v3</code></td></tr>
+      <tr><td>MT (translate)</td><td><code>x-ai/grok-4.3</code></td><td><code>sarvam-translate:v1</code></td></tr>
+      <tr><td>TTS (text→speech)</td><td><code>gemini-3.1-flash-tts-preview</code></td><td><code>bulbul:v3</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">a real Sarvam translate call (server/providers/sarvam.py)</span></div><pre>POST https://api.sarvam.ai/translate
+     header:  api-subscription-key: &lt;SARVAM_API_KEY&gt;
+     body:    { &quot;input&quot;: &quot;...&quot;, &quot;source_language_code&quot;: &quot;te-IN&quot;,
+                &quot;target_language_code&quot;: &quot;hi-IN&quot;, &quot;model&quot;: &quot;sarvam-translate:v1&quot; }
+
+# verified live end-to-end:
+#   te &quot;anaga mana deshaniki hindi adhikara bhasha&quot;
+#   -&gt; hi &quot;अर्थात् हिन्दी हमारे देश की राजभाषा है।&quot;  (+ bulbul audio, ~3.1s)</pre></div>
+</section>
+
+<section>
+  <div class="eyebrow">Honest degradation · concept + code</div>
+  <h2>When the provider dies, the app says so</h2>
+  <p class="lead">Because one key can take everything down, the app is built to fail loudly, not silently. The relay's health endpoint reports whether the provider key actually works; the room shows a self-clearing banner when it doesn't; and a watcher emails the owner. None of it guesses — it probes the key.</p>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">GET /healthz  — provider health drives the UI banner</span></div><pre>{ &quot;ok&quot;: true,
+  &quot;demo_mode&quot;: false,
+  &quot;provider_ok&quot;: true,                       # false + reason when the key is dead
+  &quot;provider_reason&quot;: &quot;providers configured: sarvam&quot;,
+  &quot;speakers&quot;: 2,
+  &quot;latency&quot;: { &quot;asr_avg_ms&quot;: 900, &quot;mt_avg_ms&quot;: 700, ... } }
+
+# server/provider_health.py probes the active provider (TTL-cached).
+# The room polls /healthz; provider_ok:false  -&gt;  &quot;translation unavailable&quot; banner.
+# tools/health_watch.py emails the owner when provider_ok flips false.</pre></div>
+</section>
+
+<section>
+  <div class="eyebrow">Cost control · concept + code</div>
+  <h2>Zero credits when nobody's listening</h2>
+  <p class="lead">A mic left open (or voice-detection firing on background noise) while a speaker is alone would burn provider credits on utterances nobody receives. The relay skips the whole paid pipeline before the ASR call when there are no listeners to translate for.</p>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">mesh/relay/processors.py — the idle-cost guard</span></div><pre>class ASRStage:
+    async def handle(self, frame):
+        # no listeners -&gt; nobody to translate for -&gt; skip the PAID pipeline
+        # before the ASR call. (MT/TTS already short-circuit on empty targets.)
+        if _SKIP_WHEN_ALONE and not self.registry.targets_for(frame.speaker_id):
+            frame.suppressed = &quot;no listeners - skipped (idle-cost guard)&quot;
+            return
+        result = await self.asr.transcribe(frame.wav_bytes)   # only now do we pay
+        ...
+# verified live: alone speaker -&gt; 0 provider calls; resumes when a listener joins.</pre></div>
+</section>
+
+<section>
+  <div class="eyebrow">Access · concept + code</div>
+  <h2>Joining a room: PIN by email, gated relay</h2>
+  <p class="lead">Access is email-first (same pattern as MilkPost): request a PIN, receive it via Resend, then join. Every join — on both the classic app and the mesh relay — is PIN-gated, and wrong attempts are rate-limited. The PIN is unpublished; it only arrives by email.</p>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">a speaker join over the relay WebSocket</span></div><pre># request a PIN:  POST /request  { email }  -&gt; Resend emails the PIN + guest login
+# then join:
+ws  wss://&lt;relay&gt;/ws/speaker
+--&gt; { &quot;type&quot;:&quot;join&quot;, &quot;name&quot;:&quot;Ajay&quot;, &quot;language&quot;:&quot;te-IN&quot;, &quot;pin&quot;:&quot;&lt;from email&gt;&quot; }
+&lt;-- { &quot;type&quot;:&quot;joined&quot;, &quot;speaker_id&quot;:&quot;...&quot;, &quot;roster&quot;:[...] }      # correct PIN
+&lt;-- { &quot;type&quot;:&quot;error&quot;,  &quot;message&quot;:&quot;wrong access PIN&quot; }            # wrong (rate-limited)</pre></div>
+</section>
+
+<section>
+  <div class="eyebrow">Deployment · concept + code</div>
+  <h2>Local relay, public tunnel, Vercel betadoc</h2>
+  <p class="lead">Unlike MilkPost, the VaaniMesh <em>app</em> can't run on Vercel — it's a long-lived WebSocket + pipeline server. So the app runs locally under pm2, and only its <strong>betadoc</strong> is on Vercel. The public <code>/app</code> link is a redirect to a Cloudflare "quick tunnel" into the local relay — but that tunnel's hostname changes on every restart, so a watcher heals the redirect automatically.</p>
+  <div class="term"><div class="bar"><i></i><i></i><i></i><span class="name">betadoc/vercel.json — the /app redirect (auto-healed)</span></div><pre>{ &quot;redirects&quot;: [
+    { &quot;source&quot;: &quot;/app&quot;,       &quot;destination&quot;: &quot;https://&lt;current-tunnel&gt;.trycloudflare.com&quot;,       &quot;statusCode&quot;: 302 },
+    { &quot;source&quot;: &quot;/app/:path*&quot;,&quot;destination&quot;: &quot;https://&lt;current-tunnel&gt;.trycloudflare.com/:path*&quot;,&quot;statusCode&quot;: 302 }
+] }
+
+# tools/tunnel_sync.sh (pm2: mesh-tunnel-sync) watches the tunnel log;
+# on a new hostname it rewrites this file and redeploys the betadoc.
+# stable share link stays:  https://vaanimesh.ajaykongala.online/app</pre></div>
+  <div class="note warn"><span class="lbl">The trade-off</span>
+    Quick tunnels are free but fragile (the hostname rotates, occasional edge drops). The durable fix — a named Cloudflare tunnel on a permanent hostname — is deferred because it needs the DNS zone moved to Cloudflare. For a demo, the auto-healer is enough.</div>
+</section>
+
+<section>
+  <div class="eyebrow">Keep this handy</div>
+  <h2>Glossary — the terms both parts used</h2>
+  <dl class="gloss">
+    <dt>Medallion pipeline</dt><dd>bronze → silver → gold: raw landing, cleaned, then purpose-built fact tables.</dd>
+    <dt>Grain</dt><dd>What one fact row represents ("one cow, one day"). Getting it right makes a metric meaningful.</dd>
+    <dt>Semantic layer</dt><dd>One governed dictionary of what each number means, computed the same way everywhere.</dd>
+    <dt>Receipt / Lineage</dt><dd>The provenance shipped with each answer (definition, SQL, source trail) — makes a number auditable.</dd>
+    <dt>Governance guard</dt><dd>The rule that refuses to sum/average an average, recomputing ratios from parts.</dd>
+    <dt>Idempotent</dt><dd>Run twice, identical result — why pipeline numbers are reproducible.</dd>
+    <dt>Damped Holt</dt><dd>Simple forecasting: follow level + trend, gently flatten the trend so projections stay sane.</dd>
+    <dt>Betadoc / Phasedoc</dt><dd>Outward public demo package / inward private build tracker.</dd>
+    <dt>ASR · MT · TTS</dt><dd>Speech-to-text · machine translation · text-to-speech — VaaniMesh's three pipeline stages.</dd>
+    <dt>Mesh / relay</dt><dd>The room model, and the independent server that owns the AI pipeline and routes each listener their own translation.</dd>
+    <dt>Provider (Sarvam / OpenRouter)</dt><dd>The external AI service behind each stage, chosen per-stage by env var.</dd>
+    <dt>Serverless / cold start</dt><dd>On-demand code on throwaway instances; a cold start has empty local storage — what forced stateless sessions.</dd>
+    <dt>Stateless session</dt><dd>A login whose signed cookie IS the session, verifiable by any instance without shared storage.</dd>
+    <dt>PBKDF2-HMAC-SHA256</dt><dd>A deliberately slow password hash (200k iters) that makes stolen hashes impractical to crack.</dd>
+    <dt>PIN gate</dt><dd>The demo access check: a PIN (emailed via Resend) for a short-lived signed cookie.</dd>
+    <dt>pm2</dt><dd>Process manager keeping services alive across reboots, from committed configs.</dd>
+    <dt>Quick tunnel</dt><dd>A free Cloudflare tunnel exposing a local server publicly — with a hostname that rotates on restart.</dd>
+    <dt>DNS wildcard / DKIM / SPF</dt><dd>Address-book catch-all; and the DNS-published proofs (signature, allowed-senders) that let receivers trust the domain's email.</dd>
+    <dt>Feed token</dt><dd>The secret that lets a machine read the APIs without a browser login.</dd>
+  </dl>
+</section>
+
+<section>
+  <div class="eyebrow">Read the real thing</div>
+  <h2>Where the code actually lives</h2>
+  <p class="lead">The snippets above are doorways. To truly learn a system, read one whole flow end to end in the real files. Here's the map, and two traces worth following slowly.</p>
+
+  <h3>🥛 MilkPost — files to open <span class="muted">(repo: velocity-hub)</span></h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>To understand…</th><th>Read</th></tr></thead>
+    <tbody>
+      <tr><td>Routes, middleware, inference serving</td><td><code>aina-out/barnboard/app/app/main.py</code></td></tr>
+      <tr><td>Schema, auth, sessions, password hashing</td><td><code>aina-out/barnboard/app/app/db.py</code></td></tr>
+      <tr><td>The forecasting model (train + backtest)</td><td><code>tools/train_models.py</code></td></tr>
+      <tr><td>Pipeline enrichment &amp; source export</td><td><code>tools/enrich_gold.py</code>, <code>tools/make_sources.py</code></td></tr>
+      <tr><td>Governed metric definitions</td><td><code>semantic-metrics/*.json</code> + <code>EXTENDING.md</code></td></tr>
+      <tr><td>The serverless PIN-gate wrapper</td><td><code>api/index.py</code></td></tr>
+      <tr><td>What's tested (read tests to learn behaviour)</td><td><code>aina-out/barnboard/app/tests/</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note real"><span class="lbl">Trace to follow</span>
+    Follow one milk entry all the way to a forecast: <code>POST /milk/log</code> in <b>main.py</b> → the upsert in <b>db.py</b> → the pipeline turns logs into <code>gold.agg_milk_cow_daily</code> → <b>train_models.py</b> fits per-cow Holt params → <code>_herd_forecast()</code> / <code>_svg_forecast()</code> in <b>main.py</b> draw the dashboard panel. One data point, front to back.</div>
+
+  <h3>🕸️ VaaniMesh — files to open <span class="muted">(repo: vaanimesh)</span></h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>To understand…</th><th>Read</th></tr></thead>
+    <tbody>
+      <tr><td>Relay routes, join gate, health endpoint</td><td><code>mesh/relay/app.py</code></td></tr>
+      <tr><td>The ASR→MT→TTS pipeline stages</td><td><code>mesh/relay/processors.py</code></td></tr>
+      <tr><td>Room membership &amp; who-listens-to-whom</td><td><code>mesh/relay/registry.py</code></td></tr>
+      <tr><td>Provider adapters &amp; per-stage selection</td><td><code>server/providers/</code> (<code>sarvam.py</code>, <code>openrouter.py</code>, <code>__init__.py</code>)</td></tr>
+      <tr><td>Provider-key liveness probe</td><td><code>server/provider_health.py</code></td></tr>
+      <tr><td>Config &amp; env knobs (provider, PINs, budgets)</td><td><code>server/config.py</code></td></tr>
+      <tr><td>The speaker console UI</td><td><code>mesh/static/js/speaker.js</code></td></tr>
+      <tr><td>What's tested (server + browser modules)</td><td><code>tests/</code>, <code>tests/js/</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note real"><span class="lbl">Trace to follow</span>
+    Follow one spoken sentence through the mesh: a browser sends <code>{"type":"utterance"}</code> over <code>/ws/speaker</code> in <b>app.py</b> → <code>ASRStage</code> (idle-guard, then transcribe) → <code>GuardStage</code> (language check) → <code>MTStage</code> (translate per listener) → <code>TTSStage</code> → <code>EgressStage</code> routes each listener their own version — all in <b>processors.py</b>. That single file is the whole product.</div>
+</section>
+
+<footer class="wrap" style="border:0;padding-top:24px">Systems handbook — plain-language companions to the internal references in <code>velocity-hub</code> and <code>vaanimesh</code>. Sibling doc: <a href="index.html">Green Means Go — CI/CD &amp; Jenkins</a>.</footer>
+</div>
+</body>
+</html>

@@ -1,16 +1,15 @@
 # docs
 
-Engineering reference docs.
+Plain-language engineering references — built to be *understood*, not just run.
 
-## Green Means Go — CI/CD, build signals & Jenkins
+## Pages
 
-An in-depth field guide to continuous integration and delivery: what the
-green/red build signal actually means, the anatomy of a pipeline run
-(grounded in the VaaniMesh & velocity-hub GitHub Actions workflows), an
-analysis of a real CI failure streak, and how Jenkins does the same job
-self-hosted.
+- **[How It Works](how-it-works.html)** — a two-part handbook explaining the
+  code behind **MilkPost** (dairy data platform) and **VaaniMesh** (live
+  voice-translation mesh). Every topic is: the idea in plain words → why it's
+  done that way → the real code snippet, with a map of the source files and
+  traces to follow so you can learn by reading the real thing.
+- **[Green Means Go](index.html)** — an in-depth field guide to CI/CD, the
+  green/red build signal, and Jenkins pipelines.
 
-- **Source:** [`index.html`](index.html)
-- **Rendered:** via GitHub Pages once enabled (see the repo's Settings → Pages),
-  or preview any commit with
-  <https://htmlpreview.github.io/?https://raw.githubusercontent.com/ajay-453/docs/main/index.html>
+Live at <https://ajay-453.github.io/docs/>.
